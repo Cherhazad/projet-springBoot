@@ -1,16 +1,27 @@
 package fr.diginamic.hello.controleurs;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/hello")
-public class HelloControleur {
+import fr.diginamic.hello.services.HelloService;
 
-	@GetMapping
+@RestController
+@RequestMapping("/saluer")
+public class HelloControleur {
+	
+	@Autowired
+	HelloService helloService;
+
+	@GetMapping("/hello")
 	public String direHello() {
-		return "Hello";
+		return helloService.salutation();
+	}
+	
+	@GetMapping("/bonjour")
+	public String direBonjour() {
+		return "Bonjour, je m'appelle Chérhazad et je dis Bonjour !!";
 	}
 
 }

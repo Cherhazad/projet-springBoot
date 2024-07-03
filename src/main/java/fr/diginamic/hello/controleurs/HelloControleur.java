@@ -16,7 +16,7 @@ public class HelloControleur {
 
 	@GetMapping("/hello")
 	public String direHello() {
-		return helloService.salutation();
+		return helloService.salutations();
 	}
 	
 	@GetMapping("/bonjour")

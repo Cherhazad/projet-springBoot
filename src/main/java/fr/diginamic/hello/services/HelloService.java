@@ -10,8 +10,7 @@ public class HelloService {
 	}
 	
 	public String salutations() {
-		String message = "Je suis la classe de service et je vous dis Bonjour.";
-		return message;
+		return "Je suis la classe de service et je vous dis Bonjour.";
 	}
 
 }

@@ -2,6 +2,7 @@ package fr.diginamic.hello.entites;
 
 public class Ville {
 	
+	private int id;
 	private String nom;
 	private int nbHabitants;
 	
@@ -12,11 +13,15 @@ public class Ville {
 	 */
 	
 	
-	public Ville(String nom, int nbHabitants) {
+	public Ville(int id, String nom, int nbHabitants) {
 		super();
+		this.id = id;
 		this.nom = nom;
 		this.nbHabitants = nbHabitants;
 	}
+	
+	
+	
 	
 	/** Getter pour nom
 	 * @return the nom
@@ -41,6 +46,26 @@ public class Ville {
 	 */
 	public void setNbHabitants(int nbHabitants) {
 		this.nbHabitants = nbHabitants;
+	}
+
+
+
+
+	/** Getter pour id
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+
+
+
+	/** Setter pour id
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 	

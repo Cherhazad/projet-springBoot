@@ -19,13 +19,13 @@ import fr.diginamic.hello.entites.Ville;
 @RequestMapping("/villes")
 public class VilleController {
 
-	List<Ville> listeVilles = new ArrayList<>(); //utiliser List.of return une erreur null car une liste est immutable.
+	List<Ville> listeVilles = new ArrayList<>(); // utiliser List.of return une erreur null car une liste est immutable.
 
 	public VilleController() {
 		listeVilles.add(new Ville(1, "Montpellier", 36000));
 		listeVilles.add(new Ville(2, "Paris", 85000));
 	}
-	
+
 	// méthodes GET
 
 	@GetMapping
@@ -42,10 +42,11 @@ public class VilleController {
 		}
 		return null;
 	}
-	
+
 	// méthodes POST
-	
-	@PostMapping // ("/insertVille") pas besoin de mettre ce complément d'url si on n'a qu'une seule fois le post.
+
+	@PostMapping // ("/insertVille") pas besoin de mettre ce complément d'url si on n'a qu'une
+					// seule fois le post.
 	public ResponseEntity<String> insertVille(@RequestBody Ville nvVille) {
 
 //		for (Ville ville : listeVilles) {
@@ -57,39 +58,47 @@ public class VilleController {
 //		}
 //		listeVilles.add(nvVille);
 //		return ResponseEntity.ok("Ville insérée avec succès");
-		
-		if (listeVilles.contains(nvVille)) { // il faut alors redéfinir la méthode equals dans la classe Ville (voir corrigé obsidian).
+
+		if (listeVilles.contains(nvVille)) { // il faut alors redéfinir la méthode equals dans la classe Ville (voir
+												// corrigé obsidian).
 			return ResponseEntity.badRequest().body("La ville " + nvVille.getNom() + " existe déjà.");
 		}
 		listeVilles.add(nvVille);
 		return ResponseEntity.ok("Ville insérée avec succès.");
-		
+
 	}
-	
-	
-	
+
 	// méthodes PUT
-	
-	@PutMapping("/modifierVille/{id}")
-	public Ville modifierVille(@PathVariable int id, @RequestBody Ville nvVille) {
-		for (Ville ville : listeVilles) {
-			if(ville.getId() == id) {
-				return nvVille;
-			}
+
+	@PutMapping // ("/modifierVille/{id}")
+	public ResponseEntity<String> modifierVille(@RequestBody Ville modifVille) { // @PathVariable int id,
+//		for (Ville ville : listeVilles) {
+//			if(ville.getId() == id) {
+//				return nvVille;
+//			}
+//		}
+//		return null;
+
+		Ville ville = listeVilles.stream().filter(v -> v.getId() == modifVille.getId()).findFirst().orElse(null);
+		if (ville != null) {
+			ville.setNbHabitants(modifVille.getNbHabitants());
+			ville.setNom(modifVille.getNom());
+			return ResponseEntity.ok("Ville modifiée avec succès");
+		} else {
+			return ResponseEntity.badRequest().body("La ville d'identifiant " + modifVille.getId() + " n'existe pas.");
 		}
-		return null;
+
 	}
-	
+
 	// méthodes DELETE
-	
-	@DeleteMapping("/supprimerVille/{id}")
-	public Ville supprimerVille(@PathVariable int id, @RequestBody Ville nvVille) {
-		for (Ville ville : listeVilles) {
-			if(ville.getId() == id) {
-				return nvVille;
-			}
+
+	@DeleteMapping //("/supprimerVille/{id}")
+	public ResponseEntity<String> supprimerVille(@PathVariable int id, @RequestBody Ville supprVille) {
+		Ville ville = listeVilles.stream().filter(v -> v.getId() == id).findFirst().orElse(null);
+		if (ville != null) {
+			listeVilles.remove(supprVille);
 		}
-		return null;
+		return ResponseEntity.ok("La ville a été supprimée avec succès");
 	}
-	
+
 }

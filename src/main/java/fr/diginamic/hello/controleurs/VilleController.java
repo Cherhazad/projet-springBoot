@@ -49,7 +49,7 @@ public class VilleController {
 
 	@PostMapping // ("/insertVille") pas besoin de mettre ce complément d'url si on n'a qu'une
 					// seule fois le post.
-	public ResponseEntity<String> insertVille(@RequestBody Ville nvVille) {
+	public ResponseEntity<String> insertVille(@Valid @RequestBody Ville nvVille, BindingResult controleQualite) {
 
 //		for (Ville ville : listeVilles) {
 //			if (ville.getNom().equals(nvVille.getNom()) || ville.getId() == nvVille.getId()) {
@@ -61,27 +61,27 @@ public class VilleController {
 //		listeVilles.add(nvVille);
 //		return ResponseEntity.ok("Ville insérée avec succès");
 
+		if (controleQualite.hasErrors()) {
+			return ResponseEntity.badRequest().body("Les données passées en paramètres sont incorrectes");
+		}
+
 		if (listeVilles.contains(nvVille)) { // il faut alors redéfinir la méthode equals dans la classe Ville (voir
 												// corrigé obsidian).
 			return ResponseEntity.badRequest().body("La ville " + nvVille.getNom() + " existe déjà.");
 		}
 		listeVilles.add(nvVille);
+		System.out.println(listeVilles);
 		return ResponseEntity.ok("Ville insérée avec succès.");
 
 	}
 
 	// méthodes PUT
 
-	@PutMapping // ("/modifierVille/{id}")
-	public ResponseEntity<String> modifierVille(@Valid @RequestBody Ville modifVille, BindingResult controleQualite) { // @PathVariable int id,
-//		for (Ville ville : listeVilles) {
-//			if(ville.getId() == id) {
-//				return nvVille;
-//			}
-//		}
-//		return null;
-		
-		if(controleQualite.hasErrors()) {
+	@PutMapping("/{id}") // ("/modifierVille/{id}")
+	public ResponseEntity<String> modifierVille(@PathVariable int id, @Valid @RequestBody Ville modifVille,
+			BindingResult controleQualite) { // @PathVariable int id,
+
+		if (controleQualite.hasErrors()) {
 			return ResponseEntity.badRequest().body("Les données passées en paramètres sont incorrectes");
 		}
 
@@ -89,6 +89,7 @@ public class VilleController {
 		if (ville != null) {
 			ville.setNbHabitants(modifVille.getNbHabitants());
 			ville.setNom(modifVille.getNom());
+			System.out.println(listeVilles);
 			return ResponseEntity.ok("Ville modifiée avec succès");
 		} else {
 			return ResponseEntity.badRequest().body("La ville d'identifiant " + modifVille.getId() + " n'existe pas.");
@@ -98,11 +99,12 @@ public class VilleController {
 
 	// méthodes DELETE
 
-	@DeleteMapping //("/supprimerVille/{id}")
-	public ResponseEntity<String> supprimerVille(@PathVariable int id, @RequestBody Ville supprVille) {
+	@DeleteMapping("/{id}") // ("/supprimerVille/{id}")
+	public ResponseEntity<String> supprimerVille(@PathVariable int id) {
 		Ville ville = listeVilles.stream().filter(v -> v.getId() == id).findFirst().orElse(null);
 		if (ville != null) {
-			listeVilles.remove(supprVille);
+			listeVilles.remove(ville);
+			System.out.println(listeVilles);
 		}
 		return ResponseEntity.ok("La ville a été supprimée avec succès");
 	}

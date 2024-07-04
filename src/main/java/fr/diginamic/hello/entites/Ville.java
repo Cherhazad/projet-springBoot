@@ -2,20 +2,20 @@ package fr.diginamic.hello.entites;
 
 import java.util.Objects;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-@Entity
-@Table(name = "VILLE")
 public class Ville {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Min(value = 1)
 	private int id;
+	
+	@NotNull
+	@Size(min = 2)
 	private String nom;
+	
+	@Min(value = 1)
 	private int nbHabitants;
 
 	/**
@@ -106,4 +106,11 @@ public class Ville {
 		this.id = id;
 	}
 
+	@Override
+	public String toString() {
+		return "Ville [id=" + id + ", nom=" + nom + ", nbHabitants=" + nbHabitants + "]";
+	}
+
+	
+	
 }

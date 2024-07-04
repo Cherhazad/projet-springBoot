@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.diginamic.hello.entites.Ville;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/villes")
@@ -71,13 +73,17 @@ public class VilleController {
 	// méthodes PUT
 
 	@PutMapping // ("/modifierVille/{id}")
-	public ResponseEntity<String> modifierVille(@RequestBody Ville modifVille) { // @PathVariable int id,
+	public ResponseEntity<String> modifierVille(@Valid @RequestBody Ville modifVille, BindingResult controleQualite) { // @PathVariable int id,
 //		for (Ville ville : listeVilles) {
 //			if(ville.getId() == id) {
 //				return nvVille;
 //			}
 //		}
 //		return null;
+		
+		if(controleQualite.hasErrors()) {
+			return ResponseEntity.badRequest().body("Les données passées en paramètres sont incorrectes");
+		}
 
 		Ville ville = listeVilles.stream().filter(v -> v.getId() == modifVille.getId()).findFirst().orElse(null);
 		if (ville != null) {

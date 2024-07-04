@@ -39,3 +39,4 @@ build/
 .project
 *.DS_Store
 persistence.xml
+application.properties

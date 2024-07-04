@@ -21,26 +21,43 @@ public class VilleDao {
 		TypedQuery<VilleTP6> query = em.createQuery("SELECT v FROM VilleTP6 v", VilleTP6.class);
 		return query.getResultList();
 	}
-	
+
 	// create
-	
+
 	@Transactional
 	public void insert(VilleTP6 villeTP6) {
 		em.persist(villeTP6);
 	}
 
 	// update
-	
+
 	@Transactional
 	public void update(VilleTP6 villeTP6) {
 		VilleTP6 villeFromDb = em.find(VilleTP6.class, villeTP6.getId());
-		if(villeFromDb != null) {
+		if (villeFromDb != null) {
+			System.out.println("Ville trouvée dans la base de données : " + villeFromDb);
 			villeFromDb.setNom(villeTP6.getNom());
 			villeFromDb.setNbHabitants(villeTP6.getNbHabitants());
+			em.merge(villeFromDb);
+			System.out.println("Ville mise à jour dans la base de données : " + villeFromDb);
+		} else {
+			System.out.println("VilleDao: Ville avec id " + villeTP6.getId() + " non trouvée dans la base de données.");
+
 		}
 	}
-	
+
 	// delete
-	
+	@Transactional
+	public void delete(VilleTP6 villeTP6) {
+		VilleTP6 villeFromDb = em.find(VilleTP6.class, villeTP6.getId());
+		if (villeFromDb != null) {
+			System.out.println("Ville trouvée dans la base de données : " + villeFromDb);
+			em.remove(villeFromDb);
+			System.out.println("Ville mise à jour dans la base de données : " + villeFromDb);
+		} else {
+			System.out.println("VilleDao: Ville avec id " + villeTP6.getId() + " non trouvée dans la base de données.");
+
+		}
+	}
 
 }

@@ -2,6 +2,7 @@ package fr.diginamic.hello.controleurs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -62,7 +63,8 @@ public class VilleController {
 //		return ResponseEntity.ok("Ville insérée avec succès");
 
 		if (controleQualite.hasErrors()) {
-			return ResponseEntity.badRequest().body("Les données passées en paramètres sont incorrectes");
+			return ResponseEntity.badRequest().body(controleQualite.getAllErrors().stream()
+					.map(e -> e.getDefaultMessage()).collect(Collectors.joining("\n")));
 		}
 
 		if (listeVilles.contains(nvVille)) { // il faut alors redéfinir la méthode equals dans la classe Ville (voir
@@ -81,8 +83,9 @@ public class VilleController {
 	public ResponseEntity<String> modifierVille(@PathVariable int id, @Valid @RequestBody Ville modifVille,
 			BindingResult controleQualite) { // @PathVariable int id,
 
-		if (controleQualite.hasErrors()) {
-			return ResponseEntity.badRequest().body("Les données passées en paramètres sont incorrectes");
+		if (controleQualite.hasErrors()) { // va récupérer les messages personnalisés précisés pour les attributs dans la classe Ville
+			ResponseEntity.badRequest().body(controleQualite.getAllErrors().stream().map(e -> e.getDefaultMessage())
+					.collect(Collectors.joining("\n")));
 		}
 
 		Ville ville = listeVilles.stream().filter(v -> v.getId() == modifVille.getId()).findFirst().orElse(null);

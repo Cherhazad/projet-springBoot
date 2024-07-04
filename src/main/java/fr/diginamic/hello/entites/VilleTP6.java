@@ -2,27 +2,36 @@ package fr.diginamic.hello.entites;
 
 import java.util.Objects;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class Ville {
+@Entity
+@Table(name = "VILLE")
+public class VilleTP6 {
 
-	@Min(value = 1, message = "L'id d'une ville doit être strictement positive.")
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	// @Min(value = 1) on ne peut pas faire de contrôle sur l'id en auto incrément car géré par mySql
 	private int id;
 	
 	@NotNull
-	@Size(min = 2, message = "Le nom d'une ville doit être composé d'au moins deux caractères.")
+//	@Size(min = 2)
 	private String nom;
 	
-	@Min(value = 1, message = "Le nombre d'habitants d'une ville doit être supérieur ou égal à 1.")
+//	@Min(value = 1)
 	private int nbHabitants;
 
 	/**
 	 * Constructeur
 	 * 
 	 */
-	public Ville() {
+	public VilleTP6() {
 		super();
 	}
 
@@ -33,7 +42,7 @@ public class Ville {
 	 * @param nbHabitants
 	 */
 
-	public Ville(int id, String nom, int nbHabitants) {
+	public VilleTP6(int id, String nom, int nbHabitants) {
 		super();
 		this.id = id;
 		this.nom = nom;
@@ -48,7 +57,7 @@ public class Ville {
 			return false;
 		if (getClass() != obj.getClass())
 		return false;
-		Ville other = (Ville) obj;
+		VilleTP6 other = (VilleTP6) obj;
 		return nbHabitants == other.nbHabitants && Objects.equals(nom, other.nom);
 	}
 
@@ -108,9 +117,9 @@ public class Ville {
 
 	@Override
 	public String toString() {
-		return "Ville [id=" + id + ", nom=" + nom + ", nbHabitants=" + nbHabitants + "]";
+		return "VilleTP6 [id=" + id + ", nom=" + nom + ", nbHabitants=" + nbHabitants + "]";
 	}
+	
+	
 
-	
-	
 }

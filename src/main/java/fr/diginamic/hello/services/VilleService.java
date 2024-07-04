@@ -2,79 +2,86 @@ package fr.diginamic.hello.services;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import fr.diginamic.hello.DAO.VilleDao;
 import fr.diginamic.hello.entites.Ville;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
+import fr.diginamic.hello.entites.VilleTP6;
 
 @Service
 public class VilleService {
-
-	@PersistenceContext
-	private EntityManager em;
-	List<Ville> listeVilles = new ArrayList<>();
-
-	@GetMapping // TODO Annotations à mettre dans la classe VilleController sur l'appel des méthodes ?
-	public List<Ville> extractVilles() {
-		TypedQuery<Ville> query = em.createQuery("SELECT v FROM Ville v", Ville.class);
-		listeVilles = new ArrayList<>(query.getResultList());
-		return listeVilles;
+	
+	@Autowired
+	private VilleDao villeDao;
+	
+	List<VilleTP6> listeVilles = new ArrayList<>();
+	
+	
+	// @PostConstruct
+	public void initDonnees() {
+		this.listeVilles = extractVilleTP6s();
 	}
 
-	@GetMapping("/{idVille}")
-	public Ville extractVilleId(@PathVariable int idVille, @RequestBody Ville nvVille) {
-
-		Ville villeParId = listeVilles.stream().filter(ville -> ville.getId() == idVille).findFirst().orElse(null);
-		return villeParId;
+	
+	public List<VilleTP6> extractVilleTP6s() {
+		return villeDao.extractVilles();
 	}
 
-	@GetMapping("/{nom}")
-	public Ville extractVilleNom(@PathVariable String nom, @RequestBody Ville nvVille) {
-		Ville villeParNom = listeVilles.stream().filter(ville -> ville.getNom().equalsIgnoreCase(nom)).findFirst()
+
+	public VilleTP6 extractVilleTP6Id(int idVilleTP6, VilleTP6 nvVilleTP6) {
+
+		VilleTP6 VilleTP6ParId = listeVilles.stream().filter(VilleTP6 -> VilleTP6.getId() == idVilleTP6).findFirst()
 				.orElse(null);
-		return villeParNom;
+		return VilleTP6ParId;
 	}
 
-	@PostMapping("/insertVille")
-	public List<Ville> insertVille(@RequestBody Ville ville) {
+	//@GetMapping("/{nom}")
+	public VilleTP6 extractVilleTP6Nom(String nom, VilleTP6 nvVilleTP6) {
+		VilleTP6 VilleTP6ParNom = listeVilles.stream().filter(VilleTP6 -> VilleTP6.getNom().equalsIgnoreCase(nom))
+				.findFirst().orElse(null);
+		return VilleTP6ParNom;
+	}
 
-		Optional<Ville> villeExistante = listeVilles.stream().filter(v -> v.getNom().equals(ville.getNom()))
-				.findFirst();
-		if (villeExistante == null) {
-			listeVilles.add(ville);
-			ResponseEntity.ok("Ville insérée avec succès");
+	//@PostMapping("/insertVilleTP6")
+	public List<VilleTP6> insertVilleTP6(VilleTP6 VilleTP6) {
+
+		VilleTP6 VilleTP6Existante = listeVilles.stream().filter(v -> v.getNom().equals(VilleTP6.getNom()))
+				.findFirst().orElse(null);
+		if (VilleTP6Existante == null) {
+			listeVilles.add(VilleTP6);
+			villeDao.insert(VilleTP6);
+			System.out.println(listeVilles);
+			ResponseEntity.ok("VilleTP6 insérée avec succès");
 		} else {
-			ResponseEntity.badRequest().body("La ville existe déjà");
+			ResponseEntity.badRequest().body("La VilleTP6 " + VilleTP6 + " existe déjà");
 		}
 		return listeVilles;
 
 	}
 
-	@PutMapping("/{idVille}")
-	public List<Ville> modifierVille(@PathVariable int idVille, @RequestBody Ville villeModifiee) {
+	public List<VilleTP6> modifierVilleTP6(int idVilleTP6, VilleTP6 VilleTP6Modifiee) {
 
-		if (listeVilles.stream().filter(v -> v.getId() == idVille) != null) {
-			listeVilles.add(villeModifiee);
+		VilleTP6 villeAModifier = listeVilles.stream().filter(v -> v.getId() == idVilleTP6).findFirst().orElse(null);
+		if (villeAModifier != null) {
+//			villeAModifier.setId(VilleTP6Modifiee.getId());
+			villeAModifier.setNom(VilleTP6Modifiee.getNom());
+			villeAModifier.setNbHabitants(VilleTP6Modifiee.getNbHabitants());
+			villeDao.update(VilleTP6Modifiee);
+			System.out.println(listeVilles);
 		}
 		return listeVilles;
 	}
 
-	@DeleteMapping("/{idVille}")
-	public List<Ville> supprimerVille(@PathVariable int idVille) {
-		Ville villeParId = listeVilles.stream().filter(ville -> ville.getId() == idVille).findFirst().orElse(null);
-		if (villeParId != null) {
-			listeVilles.remove(villeParId);
+	//@DeleteMapping("/{idVilleTP6}")
+	public List<VilleTP6> supprimerVilleTP6(int idVilleTP6) {
+		VilleTP6 VilleTP6ParId = listeVilles.stream().filter(VilleTP6 -> VilleTP6.getId() == idVilleTP6).findFirst()
+				.orElse(null);
+		if (VilleTP6ParId != null) {
+			listeVilles.remove(VilleTP6ParId);
+			System.out.println(listeVilles);
 		}
 		return listeVilles;
 	}

@@ -1,5 +1,7 @@
 package fr.diginamic.hello.entites;
 
+import java.util.Objects;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,6 +38,18 @@ public class Ville {
 		this.id = id;
 		this.nom = nom;
 		this.nbHabitants = nbHabitants;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+		return false;
+		Ville other = (Ville) obj;
+		return nbHabitants == other.nbHabitants && Objects.equals(nom, other.nom);
 	}
 
 	/**

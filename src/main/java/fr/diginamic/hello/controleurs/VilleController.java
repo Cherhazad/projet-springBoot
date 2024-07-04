@@ -45,18 +45,25 @@ public class VilleController {
 	
 	// méthodes POST
 	
-	@PostMapping("/insertVille")
+	@PostMapping // ("/insertVille") pas besoin de mettre ce complément d'url si on n'a qu'une seule fois le post.
 	public ResponseEntity<String> insertVille(@RequestBody Ville nvVille) {
 
-		for (Ville ville : listeVilles) {
-			if (ville.getNom().equals(nvVille.getNom()) || ville.getId() == nvVille.getId()) {
-
-				return ResponseEntity.badRequest().body("La ville existe déjà");
-			}
-			
+//		for (Ville ville : listeVilles) {
+//			if (ville.getNom().equals(nvVille.getNom()) || ville.getId() == nvVille.getId()) {
+//
+//				return ResponseEntity.badRequest().body("La ville existe déjà");
+//			}
+//			
+//		}
+//		listeVilles.add(nvVille);
+//		return ResponseEntity.ok("Ville insérée avec succès");
+		
+		if (listeVilles.contains(nvVille)) { // il faut alors redéfinir la méthode equals dans la classe Ville (voir corrigé obsidian).
+			return ResponseEntity.badRequest().body("La ville " + nvVille.getNom() + " existe déjà.");
 		}
 		listeVilles.add(nvVille);
-		return ResponseEntity.ok("Ville insérée avec succès");
+		return ResponseEntity.ok("Ville insérée avec succès.");
+		
 	}
 	
 	

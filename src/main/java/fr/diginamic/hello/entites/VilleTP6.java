@@ -17,17 +17,18 @@ public class VilleTP6 {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	// @Min(value = 1) on ne peut pas faire de contrôle sur l'id en auto incrément car géré par mySql
+	// @Min(value = 1) on ne peut pas faire de contrôle sur l'id en auto incrément
+	// car géré par mySql
 	private int id;
-	
+
 	@NotNull
 	private String nom;
-	
+
 	private int nbHabitants;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "ID_DEPARTEMENT")
-	private Departement departements;
+	private Departement departement;
 
 	/**
 	 * Constructeur
@@ -58,7 +59,7 @@ public class VilleTP6 {
 		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
-		return false;
+			return false;
 		VilleTP6 other = (VilleTP6) obj;
 		return nbHabitants == other.nbHabitants && Objects.equals(nom, other.nom);
 	}
@@ -116,27 +117,27 @@ public class VilleTP6 {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
-	
 
-	/** Getter pour departements
-	 * @return the departements
+	/**
+	 * Getter pour departement
+	 * 
+	 * @return the departement
 	 */
-	public Departement getDepartements() {
-		return departements;
+	public Departement getDepartement() {
+		return departement;
 	}
 
-	/** Setter pour departements
-	 * @param departements the departements to set
+	/**
+	 * Setter pour departement
+	 * 
+	 * @param departement the departement to set
 	 */
-	public void setDepartements(Departement departements) {
-		this.departements = departements;
+	public void setDepartement(Departement departement) {
+		this.departement = departement;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "VilleTP6 [id=" + id + ", nom=" + nom + ", nbHabitants=" + nbHabitants + "]";
 	}
-	
-
 }

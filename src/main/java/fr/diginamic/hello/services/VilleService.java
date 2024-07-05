@@ -58,7 +58,7 @@ public class VilleService {
 			if(departementDao.extractDepartements() == null) {
 				departementDao.insert(dep);
 			}
-			villeTP6.setDepartements(dep);
+			villeTP6.setDepartement(dep);
 			villeDao.insert(villeTP6);
 			System.out.println(listeVilles);
 //			ResponseEntity.ok("VilleTP6 insérée avec succès");

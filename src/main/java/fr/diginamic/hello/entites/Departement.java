@@ -14,7 +14,7 @@ public class Departement {
 	private String codeDept;
 	private String nom;
 	
-	@OneToMany(mappedBy = "departements")
+	@OneToMany(mappedBy = "departement")
 	private Set<VilleTP6> villes = new HashSet<>();
 	
 	

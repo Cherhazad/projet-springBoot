@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import fr.diginamic.hello.DAO.DepartementDao;
 import fr.diginamic.hello.DAO.VilleDao;
+import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.entites.VilleTP6;
 import jakarta.annotation.PostConstruct;
 
@@ -14,6 +16,9 @@ public class VilleService {
 	
 	@Autowired
 	private VilleDao villeDao;
+	
+	@Autowired
+	private DepartementDao departementDao;
 	
 	List<VilleTP6> listeVilles;
 	
@@ -44,12 +49,16 @@ public class VilleService {
 	}
 
 	
-	public List<VilleTP6> insertVille(VilleTP6 villeTP6) {
+	public List<VilleTP6> insertVille(VilleTP6 villeTP6, Departement dep) {
 
 		VilleTP6 villeTP6Existante = listeVilles.stream().filter(v -> v.getNom().equals(villeTP6.getNom()))
 				.findFirst().orElse(null);
 		if (villeTP6Existante == null) {
 			listeVilles.add(villeTP6);
+			if(departementDao.extractDepartements() == null) {
+				departementDao.insert(dep);
+			}
+			villeTP6.setDepartements(dep);
 			villeDao.insert(villeTP6);
 			System.out.println(listeVilles);
 //			ResponseEntity.ok("VilleTP6 insérée avec succès");

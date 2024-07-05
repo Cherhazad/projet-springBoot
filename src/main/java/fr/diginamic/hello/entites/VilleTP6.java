@@ -116,12 +116,27 @@ public class VilleTP6 {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	
 
+	/** Getter pour departements
+	 * @return the departements
+	 */
+	public Departement getDepartements() {
+		return departements;
+	}
+
+	/** Setter pour departements
+	 * @param departements the departements to set
+	 */
+	public void setDepartements(Departement departements) {
+		this.departements = departements;
+	}
+	
 	@Override
 	public String toString() {
 		return "VilleTP6 [id=" + id + ", nom=" + nom + ", nbHabitants=" + nbHabitants + "]";
 	}
-	
 	
 
 }

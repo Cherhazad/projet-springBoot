@@ -1,15 +1,19 @@
 package fr.diginamic.hello.controleurs;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import fr.diginamic.hello.DAO.DepartementDao;
 import fr.diginamic.hello.entites.Departement;
+import fr.diginamic.hello.entites.VilleTP6;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class DepartementService {
 
 	@Autowired
@@ -38,12 +42,14 @@ public class DepartementService {
 		return depParNom;
 	}
 
-	public List<Departement> insertDepertement(Departement dept) {
+	
+	public List<Departement> insertDepertement(Departement dept) { //, Set<VilleTP6> listeVilles
 
 		Departement deptExistant = listeDepartements.stream().filter(d -> d.getNom().equals(dept.getNom())).findFirst()
 				.orElse(null);
 		if (deptExistant == null) {
 			listeDepartements.add(dept);
+//			dept.setVilles(listeVilles);
 			departementDao.insert(dept);
 			System.out.println(listeDepartements);
 		}

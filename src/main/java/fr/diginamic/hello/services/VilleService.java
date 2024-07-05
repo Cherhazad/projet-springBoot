@@ -53,12 +53,12 @@ public class VilleService {
 			listeVilles.add(villeTP6);
 			villeDao.insert(villeTP6);
 			System.out.println(listeVilles);
-			ResponseEntity.ok("VilleTP6 insérée avec succès");
-		} else {
-			ResponseEntity.badRequest().body("La VilleTP6 " + villeTP6 + " existe déjà");
-		}
-		return listeVilles;
-
+//			ResponseEntity.ok("VilleTP6 insérée avec succès");
+		} 
+//			else {
+//			ResponseEntity.badRequest().body("La VilleTP6 " + villeTP6 + " existe déjà");
+//		}
+		return listeVilles; //faire un return de ResponseEntity.ok(listeVilles.toString("\n") à revoir pour afficher à la ligne les villes.
 	}
 
 	public List<VilleTP6> modifierVilleTP6(int idVilleTP6, VilleTP6 villeTP6Modifiee) {
@@ -79,11 +79,11 @@ public class VilleService {
 
 
 	public List<VilleTP6> supprimerVilleTP6(int idVilleTP6) {
-		VilleTP6 VilleTP6ParId = listeVilles.stream().filter(VilleTP6 -> VilleTP6.getId() == idVilleTP6).findFirst()
+		VilleTP6 villeTP6ParId = listeVilles.stream().filter(v -> v.getId() == idVilleTP6).findFirst()
 				.orElse(null);
-		if (VilleTP6ParId != null) {
-			listeVilles.remove(VilleTP6ParId);
-			villeDao.delete(VilleTP6ParId);
+		if (villeTP6ParId != null) {
+			listeVilles.remove(villeTP6ParId);
+			villeDao.delete(villeTP6ParId);
 			System.out.println(listeVilles);
 		}
 		return listeVilles;

@@ -39,8 +39,8 @@ public class VilleControllerTP6 {
 	}
 	
 	@PostMapping
-	public List<VilleTP6> insertVille(@RequestBody VilleTP6 VilleTP6) {
-		return villeService.insertVille(VilleTP6);
+	public List<VilleTP6> insertVille(@RequestBody VilleTP6 villeTP6) {
+		return villeService.insertVille(villeTP6);
 	}
 	
 	@PutMapping("/{id}")

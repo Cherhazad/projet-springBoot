@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 
@@ -13,12 +11,12 @@ import jakarta.persistence.OneToMany;
 public class Departement {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private String codeDept;
 	private String nom;
 	
 	@OneToMany(mappedBy = "departements")
 	private Set<VilleTP6> villes = new HashSet<>();
+	
 	
 	/** Constructeur
 	 * 
@@ -27,19 +25,22 @@ public class Departement {
 		super();
 	}
 
-	/** Getter pour id
-	 * @return the id
+	
+	/** Getter pour codeDept
+	 * @return the codeDept
 	 */
-	public int getId() {
-		return id;
+	public String getCodeDept() {
+		return codeDept;
 	}
 
-	/** Setter pour id
-	 * @param id the id to set
+
+	/** Setter pour codeDept
+	 * @param codeDept the codeDept to set
 	 */
-	public void setId(int id) {
-		this.id = id;
+	public void setCodeDept(String codeDept) {
+		this.codeDept = codeDept;
 	}
+	
 
 	/** Getter pour nom
 	 * @return the nom
@@ -55,11 +56,28 @@ public class Departement {
 		this.nom = nom;
 	}
 
+
+	/** Getter pour villes
+	 * @return the villes
+	 */
+	public Set<VilleTP6> getVilles() {
+		return villes;
+	}
+
+
+
+	/** Setter pour villes
+	 * @param villes the villes to set
+	 */
+	public void setVilles(Set<VilleTP6> villes) {
+		this.villes = villes;
+	}
+
+
 	@Override
 	public String toString() {
-		return "Departement [id=" + id + ", nom=" + nom + "]";
+		return "Departement [codeDept=" + codeDept + ", nom=" + nom + "]";
 	}
-	
 	
 	
 }

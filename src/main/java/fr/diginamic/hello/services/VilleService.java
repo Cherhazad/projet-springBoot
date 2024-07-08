@@ -5,11 +5,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import fr.diginamic.hello.DAO.DepartementDao;
-import fr.diginamic.hello.DAO.VilleDao;
+import fr.diginamic.hello.dao.DepartementDao;
+import fr.diginamic.hello.dao.VilleDao;
 import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.entites.VilleTP6;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
 
 @Service
 public class VilleService {
@@ -68,6 +69,12 @@ public class VilleService {
 //		}
 		return listeVilles; //faire un return de ResponseEntity.ok(listeVilles.toString("\n") à revoir pour afficher à la ligne les villes.
 	}
+	
+	public void insertToutesVilles(List<VilleTP6> villes) {
+		for (VilleTP6 ville : villes) {
+            villeDao.insert(ville);
+        }
+	}
 
 	public List<VilleTP6> modifierVilleTP6(int idVilleTP6, VilleTP6 villeTP6Modifiee) {
 
@@ -96,5 +103,7 @@ public class VilleService {
 		}
 		return listeVilles;
 	}
+	
+
 
 }

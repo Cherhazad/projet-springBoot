@@ -1,4 +1,4 @@
-package fr.diginamic.hello.DAO;
+package fr.diginamic.hello.dao;
 
 import java.util.List;
 
@@ -13,9 +13,10 @@ import jakarta.transaction.Transactional;
 @Service
 public class VilleDao {
 
-	// read
 	@PersistenceContext
 	private EntityManager em;
+
+	// read
 
 	public List<VilleTP6> extractVilles() {
 		TypedQuery<VilleTP6> query = em.createQuery("SELECT v FROM VilleTP6 v", VilleTP6.class);

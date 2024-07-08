@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import fr.diginamic.hello.DTO.VilleTP6Dto;
+import fr.diginamic.hello.dto.VilleTP6Dto;
 import fr.diginamic.hello.entites.VilleTP6;
 import fr.diginamic.hello.services.VilleMapper;
 import fr.diginamic.hello.services.VilleService;

@@ -2,7 +2,7 @@ package fr.diginamic.hello.services;
 
 import org.springframework.stereotype.Component;
 
-import fr.diginamic.hello.DTO.VilleTP6Dto;
+import fr.diginamic.hello.dto.VilleTP6Dto;
 import fr.diginamic.hello.entites.VilleTP6;
 
 /**
@@ -11,6 +11,7 @@ import fr.diginamic.hello.entites.VilleTP6;
  * infinies lors des associations de départements à des villes.
  * 
  */
+
 @Component
 public class VilleMapper {
 

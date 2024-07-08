@@ -6,7 +6,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import fr.diginamic.hello.DAO.DepartementDao;
+import fr.diginamic.hello.dao.DepartementDao;
 import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.entites.VilleTP6;
 import jakarta.annotation.PostConstruct;

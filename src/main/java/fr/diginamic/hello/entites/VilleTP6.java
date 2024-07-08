@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "VILLE")
-public class VilleTP6 {
+public class VilleTP6 implements Comparable<VilleTP6> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -140,4 +140,20 @@ public class VilleTP6 {
 	public String toString() {
 		return "VilleTP6 [id=" + id + ", nom=" + nom + ", nbHabitants=" + nbHabitants + "]";
 	}
+
+	@Override
+	public int compareTo(VilleTP6 o) {
+		if (this.nbHabitants > o.getNbHabitants()) {
+			return 1;
+		} else if (this.nbHabitants < o.getNbHabitants()) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+	
+//	   @Override // ChatGPT propose ce code pour trier par ordre décroissant
+//	    public int compareTo(VilleTP6 o) {
+//	        return Integer.compare(o.nbHabitants, this.nbHabitants); // Trie par ordre décroissant
+//	    }
 }

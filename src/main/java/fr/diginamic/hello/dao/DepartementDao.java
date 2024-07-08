@@ -1,4 +1,4 @@
-package fr.diginamic.hello.DAO;
+package fr.diginamic.hello.dao;
 
 import java.util.List;
 
@@ -8,28 +8,28 @@ import fr.diginamic.hello.entites.Departement;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 
 @Service
 public class DepartementDao {
 
-	// read
-	
 	@PersistenceContext
 	private EntityManager em;
 
+	// read
 	public List<Departement> extractDepartements() {
 		TypedQuery<Departement> query = em.createQuery("SELECT d FROM Departement d Join fetch d.villes", Departement.class);
 		return query.getResultList();
 	}
 
 	// create
-	
+	@Transactional
 	public void insert(Departement dept) {
 		em.persist(dept);
 	}
 
 	// update
-	
+	@Transactional
 	public void update(Departement dept) {
 		Departement deptFromDb = em.find(Departement.class, dept.getCodeDept());
 		if (deptFromDb != null) {
@@ -43,7 +43,7 @@ public class DepartementDao {
 	}
 	
 	// delete
-	
+	@Transactional
 	public void delete(Departement dept) {
 		Departement deptFromDb = em.find(Departement.class, dept.getCodeDept());
 		if (deptFromDb != null) {

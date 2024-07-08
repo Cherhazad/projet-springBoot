@@ -1,6 +1,7 @@
 package fr.diginamic.hello.entites;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import jakarta.persistence.Entity;
@@ -25,6 +26,17 @@ public class Departement {
 		super();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Departement other = (Departement) obj;
+		return Objects.equals(codeDept, other.codeDept);
+	}
 	
 	/** Getter pour codeDept
 	 * @return the codeDept
@@ -78,6 +90,12 @@ public class Departement {
 	public String toString() {
 		return "Departement [codeDept=" + codeDept + ", nom=" + nom + "]";
 	}
-	
+
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(codeDept);
+	}
+
 	
 }

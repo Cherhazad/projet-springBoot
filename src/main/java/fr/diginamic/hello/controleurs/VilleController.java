@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import fr.diginamic.hello.entites.Ville;
 import jakarta.validation.Valid;
 
-@RestController
-@RequestMapping("/villes")
+//@RestController
+//@RequestMapping("/villes")
 public class VilleController {
 
 	List<Ville> listeVilles = new ArrayList<>(); // utiliser List.of return une erreur null car une liste est immutable.

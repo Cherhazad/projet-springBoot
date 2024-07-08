@@ -15,45 +15,57 @@ import org.springframework.web.bind.annotation.RestController;
 
 import fr.diginamic.hello.dto.VilleTP6Dto;
 import fr.diginamic.hello.entites.VilleTP6;
+import fr.diginamic.hello.repositories.VilleRepository;
 import fr.diginamic.hello.services.VilleMapper;
 import fr.diginamic.hello.services.VilleService;
 
-//@RestController
-//@RequestMapping("/ville")
-public class VilleControllerTP6 {
+@RestController
+@RequestMapping("/ville")
+public class VilleControllerRepo {
+
+	@Autowired
+	private VilleRepository villeRepository;
 
 	@Autowired
 	private VilleService villeService;
 
 	@GetMapping
 	public List<VilleTP6Dto> extraireVilles() {
-		return villeService.extractVilleTP6s().stream().map(VilleMapper::toDto).collect(Collectors.toList());
+		return villeRepository.findAll().stream().map(VilleMapper::toDto).collect(Collectors.toList());
 	}
 
 	@GetMapping("/parId/{id}")
-	public VilleTP6 extraireVilleParId(@PathVariable int id) {
-		return villeService.extractVilleTP6Id(id);
+	public VilleTP6Dto extraireVilleParId(@PathVariable int id) {
+		VilleTP6 ville = villeRepository.findById(id);
+		VilleTP6Dto villeDto = VilleMapper.toDto(ville);
+		return villeDto;
 	}
 
 	@GetMapping("/parNom/{nom}")
-	public VilleTP6 extractVilleTP6Nom(@PathVariable String nom) {
-		return villeService.extractVilleTP6Nom(nom);
+	public VilleTP6Dto extractVilleTP6Nom(@PathVariable String nom) {
+		VilleTP6 ville = villeRepository.findByNom(nom);
+		VilleTP6Dto villeDto = VilleMapper.toDto(ville);
+		return villeDto;
+
 	}
 
 	@PostMapping
-	public List<VilleTP6> insertVille(@RequestBody VilleTP6 villeTP6) {
-		return villeService.insertVille(villeTP6, villeTP6.getDepartement());
+	public VilleTP6 insertVille(@RequestBody VilleTP6 villeTP6) {
+		return villeRepository.save(villeTP6);
 	}
+//	public VilleTP6 insertVille(@RequestBody VilleTP6 villeTP6) {
+//		return villeRepository.save(villeTP6, villeTP6.getDepartement());
+//	}
 
+	// villeService ici
 	@PutMapping("/{id}")
 	public List<VilleTP6> updateVille(@PathVariable int id, @RequestBody VilleTP6 villeTP6) {
-		System.out.println("Appel à updateVille avec id: " + id + " et ville: " + villeTP6);
 		return villeService.modifierVilleTP6(id, villeTP6);
 	}
 
 	@DeleteMapping("/{id}")
-	public List<VilleTP6> deleteVille(@PathVariable int id) {
-		return villeService.supprimerVilleTP6(id);
+	public VilleTP6 deleteVille(@PathVariable int id) {
+		return villeRepository.deleteById(id);
 	}
 
 }

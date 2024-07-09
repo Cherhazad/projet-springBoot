@@ -13,6 +13,9 @@ public class VilleTP6Dto {
 	public VilleTP6Dto() {
 		super();
 	}
+	
+	
+	
 
 	/**
 	 * Getter pour nom

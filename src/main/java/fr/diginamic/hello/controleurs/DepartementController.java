@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.entites.VilleTP6;
+import fr.diginamic.hello.services.DepartementService;
 
 @RestController
 @RequestMapping("/departement")
@@ -31,7 +32,7 @@ public class DepartementController {
 
 	@GetMapping("/parCodeDep/{codeDep}")
 	public Departement extraireDepParId(@PathVariable String codeDep) {
-		return depService.extractDeptId(codeDep);
+		return depService.extractDeptCodeDep(codeDep);
 	}
 
 	@GetMapping("/parNom/{nom}")
@@ -39,10 +40,10 @@ public class DepartementController {
 		return depService.extractDepNom(nom);
 	}
 
-	@PostMapping
-	public List<Departement> insertDepartement(@RequestBody Departement dept) {
-		return depService.insertDepertement(dept);
-	}
+//	@PostMapping
+//	public List<Departement> insertDepartement(@RequestBody Departement dept) {
+//		return depService.insertDepartement(dept);
+//	}
 
 	@PutMapping("/{codeDep}")
 	public List<Departement> updateVille(@PathVariable String codeDep, @RequestBody Departement dept) {
@@ -55,9 +56,5 @@ public class DepartementController {
 		return depService.supprimerDepartement(codeDep);
 	}
 
-
-	public List<VilleTP6> villesPlusPeuplees(long nbrVilles, List<VilleTP6> setVilles) {
-		return setVilles.stream().limit(nbrVilles).collect(Collectors.toList());	
-	}
 
 }

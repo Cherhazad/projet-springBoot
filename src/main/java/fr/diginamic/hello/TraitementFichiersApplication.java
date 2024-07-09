@@ -1,4 +1,4 @@
-package fr.diginamic.hello.services;
+package fr.diginamic.hello;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,31 +12,29 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import fr.diginamic.hello.controleurs.DepartementController;
 import fr.diginamic.hello.dao.DepartementDao;
-import fr.diginamic.hello.dao.VilleDao;
 import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.entites.VilleTP6;
+import fr.diginamic.hello.services.DepartementService;
+import fr.diginamic.hello.services.VilleService;
 
 @SpringBootApplication
 public class TraitementFichiersApplication implements CommandLineRunner {
 
 	@Autowired
-	private DepartementController depCtroller;
+	private DepartementService depService;
 
-	@Autowired
-	private DepartementDao depDao;
-
-	@Autowired
-	private VilleDao villeDao;
-	
 	@Autowired
 	private VilleService villeService;
+
+	@Value("${initialisation.base}")
+	private boolean initialisationBase;
 
 	public static void main(String[] args) {
 
@@ -49,8 +47,13 @@ public class TraitementFichiersApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
+		if (!initialisationBase) {
+			System.out.println("La base est déjà initialisée");
+			return;
+		}
+
 		Set<VilleTP6> setVilles = new HashSet<>();
-		Set<Departement> setDepartements = new HashSet<>();
+//		Set<Departement> setDepartements = new HashSet<>();
 		System.out.println("Je suis déclenché !");
 
 		Path path = Paths.get("src/main/resources/recensement.csv");
@@ -75,24 +78,22 @@ public class TraitementFichiersApplication implements CommandLineRunner {
 				v.setNom(nomVille);
 				v.setNbHabitants(populationTotale);
 
-				setDepartements.add(d);
 				setVilles.add(v);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		for (Departement departement : setDepartements) {
-			depDao.insert(departement);
-		}
+		System.out.println("Fin de l'application");
 
 		List<VilleTP6> sortedVilles = new ArrayList<>(setVilles);
 		Collections.sort(sortedVilles, Comparator.reverseOrder());
 
-		List<VilleTP6> villeLimit = depCtroller.villesPlusPeuplees(1000, sortedVilles);
+		List<VilleTP6> villeLimit = depService.villesPlusPeuplees(1000, sortedVilles);
 
-		villeService.insertToutesVilles(villeLimit);
+		for (VilleTP6 ville : villeLimit) {
+			villeService.insertVille(ville);
+		}
 
 	}
 }

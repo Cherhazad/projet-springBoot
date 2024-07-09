@@ -76,7 +76,6 @@ public class DepartementService {
 		if (deptParId != null) {
 			listeDepartements.remove(deptParId);
 			departementDao.delete(deptParId);
-			System.out.println(listeDepartements);
 		}
 		return listeDepartements;
 	}

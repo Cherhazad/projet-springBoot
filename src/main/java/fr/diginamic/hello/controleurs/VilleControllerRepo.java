@@ -101,24 +101,25 @@ public class VilleControllerRepo {
 		return ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
 	}
 
-//	@PostMapping
-//	public List<VilleTP6> insertVille(@RequestBody VilleTP6 villeTP6) {
+	@PostMapping
+	public List<VilleTP6> insertVille(@RequestBody VilleTP6 villeTP6) {
+		villeService.insertVille(villeTP6);
+		return null;
+	}
+
+//	@PostMapping // TODO réussir à insérer le département avec la ville via le json
+//	public void insertVille(@RequestBody VilleTP6 villeTP6) {
 //		villeService.insertVille(villeTP6);
-//		return null;
 //	}
 
-	@PostMapping //TODO réussir à insérer le département avec la ville via le json 
-	public void insertVille(@RequestBody VilleTP6 villeTP6) {
-		villeService.insertVille(villeTP6);
-	}
-
 	// villeService ici
-	@PutMapping("/{id}")
-	public List<VilleTP6> updateVille(@PathVariable int id, @RequestBody VilleTP6 villeTP6) {
-		return villeService.modifierVilleTP6(id, villeTP6);
+	@PutMapping("/{id}") 
+	public List<VilleTP6Dto> updateVille(@PathVariable int id, @RequestBody VilleTP6 villeTP6) {
+		List<VilleTP6> ville = villeService.modifierVilleTP6(id, villeTP6);
+		return ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/{id}") 
 	public void deleteVille(@PathVariable int id) {
 		villeRepository.deleteById(id);
 	}

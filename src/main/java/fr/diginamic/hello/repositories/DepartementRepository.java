@@ -7,4 +7,6 @@ import fr.diginamic.hello.entites.Departement;
 
 @Repository
 public interface DepartementRepository extends JpaRepository<Departement, Integer> {
+	
+	Departement findByCodeDept(String codeDept);
 }

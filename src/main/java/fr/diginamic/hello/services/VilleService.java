@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import fr.diginamic.hello.dao.VilleDao;
 import fr.diginamic.hello.entites.Departement;
 import fr.diginamic.hello.entites.VilleTP6;
+import fr.diginamic.hello.repositories.DepartementRepository;
 import fr.diginamic.hello.repositories.VilleRepository;
 import jakarta.annotation.PostConstruct;
 
@@ -22,6 +23,9 @@ public class VilleService {
 
 	@Autowired
 	private VilleRepository villeRepo;
+	
+	@Autowired
+	private DepartementRepository departementRepo;
 
 	List<VilleTP6> listeVilles;
 
@@ -51,9 +55,14 @@ public class VilleService {
 		VilleTP6 villeTP6Existante = extractVilleTP6Nom(villeTP6.getNom());
 		
 		if (villeTP6Existante == null) {
-			departementService.insertDepartement(villeTP6.getDepartement());
-			Departement departement = departementService.extractDeptCodeDep(villeTP6.getDepartement().getCodeDept());
-			villeTP6.setDepartement(departement);
+//			departementService.insertDepartement(villeTP6.getDepartement());
+			Departement departement = villeTP6.getDepartement();
+			Departement departementExistant = departementRepo.findByCodeDept(departement.getCodeDept());
+			if (departementExistant == null) {
+                departementRepo.save(departement);
+            } else {
+                villeTP6.setDepartement(departementExistant);
+            }
 			villeRepo.save(villeTP6);
 			listeVilles.add(villeTP6);
 
@@ -65,15 +74,17 @@ public class VilleService {
 //		}
 	// faire un return de ResponseEntity.ok(listeVilles.toString("\n") à revoir pour
 	// afficher à la ligne les villes.
+	
+	
 
 	public List<VilleTP6> modifierVilleTP6(int idVilleTP6, VilleTP6 villeTP6Modifiee) {
 
-		VilleTP6 villeAModifier = listeVilles.stream().filter(v -> v.getId() == idVilleTP6).findFirst().orElse(null);
+		VilleTP6 villeAModifier = villeRepo.findById(idVilleTP6).orElseThrow(() -> new RuntimeException("Ville not found"));
 		if (villeAModifier != null) {
 			System.out.println("Ville trouvée : " + villeAModifier);
 			villeAModifier.setNom(villeTP6Modifiee.getNom());
 			villeAModifier.setNbHabitants(villeTP6Modifiee.getNbHabitants());
-			villeDao.update(villeTP6Modifiee);
+//			villeDao.update(villeTP6Modifiee); // n'est même pas nécessaire
 			System.out.println("Ville modifiée : " + villeTP6Modifiee);
 		} else {
 			System.out.println("VilleService : Ville avec id " + idVilleTP6 + " non trouvée.");

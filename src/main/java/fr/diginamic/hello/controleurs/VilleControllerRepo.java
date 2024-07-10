@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,11 @@ import fr.diginamic.hello.entites.VilleTP6;
 import fr.diginamic.hello.repositories.VilleRepository;
 import fr.diginamic.hello.services.VilleMapper;
 import fr.diginamic.hello.services.VilleService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 
 @RestController
@@ -35,9 +41,14 @@ public class VilleControllerRepo {
 	@Autowired
 	private VilleService villeService;
 
+	@Operation(summary = "Extraire la liste des villes")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Liste des villes au format JSON", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = VilleTP6Dto.class)) }) })
 	@GetMapping
-	public List<VilleTP6Dto> extraireVilles() {
-		return villeRepository.findAll().stream().map(VilleMapper::toDto).collect(Collectors.toList());
+	public ResponseEntity<String> extraireVilles() {
+		return ResponseEntity
+				.ok(villeRepository.findAll().stream().map(VilleMapper::toDto).collect(Collectors.toList()).toString());
 	}
 
 	@GetMapping("/pagination")
@@ -101,27 +112,49 @@ public class VilleControllerRepo {
 		return ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
 	}
 
+	@Operation(summary = "Création d'une nouvelle ville")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "La ville a bien été insérée.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = VilleTP6Dto.class)) }),
+			@ApiResponse(responseCode = "400", description = "La ville n'a pas pu être insérée.", content = @Content) })
 	@PostMapping
-	public List<VilleTP6> insertVille(@RequestBody VilleTP6 villeTP6) {
+	public ResponseEntity<String> insertVille(@RequestBody VilleTP6 villeTP6) {
+
+		if (villeRepository.findByNom(villeTP6.getNom()) != null) {
+			return ResponseEntity.badRequest().body("La ville n'a pas été insérée.");
+		}
 		villeService.insertVille(villeTP6);
-		return null;
+		return ResponseEntity.ok(villeService.extractVilleTP6s().toString());
+
 	}
 
-//	@PostMapping // TODO réussir à insérer le département avec la ville via le json
-//	public void insertVille(@RequestBody VilleTP6 villeTP6) {
-//		villeService.insertVille(villeTP6);
-//	}
-
-	// villeService ici
-	@PutMapping("/{id}") 
-	public List<VilleTP6Dto> updateVille(@PathVariable int id, @RequestBody VilleTP6 villeTP6) {
+	@Operation(summary = "Modification d'une ville")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "La ville a bien été modifiée.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = VilleTP6Dto.class)) }),
+			@ApiResponse(responseCode = "400", description = "La ville n'a pas pu être modifiée.", content = @Content) })
+	@PutMapping("/{id}")
+	public ResponseEntity<String> updateVille(@PathVariable int id, @RequestBody VilleTP6 villeTP6) {
+		if (villeRepository.findById(villeTP6.getId()) != null) {
+			return ResponseEntity.badRequest().body("La ville n'a pas été modifiée.");
+		}
 		List<VilleTP6> ville = villeService.modifierVilleTP6(id, villeTP6);
-		return ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
+		ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
+		return ResponseEntity.ok(villeService.extractVilleTP6s().toString());
 	}
-
-	@DeleteMapping("/{id}") 
-	public void deleteVille(@PathVariable int id) {
+	
+	@Operation(summary = "Suppression d'une ville")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "La ville a bien été supprimée.", content = {
+					@Content(mediaType = "application/json", schema = @Schema(implementation = VilleTP6Dto.class)) }),
+			@ApiResponse(responseCode = "400", description = "La ville n'a pas pu être supprimée.", content = @Content) })
+	@DeleteMapping("/{id}")
+	public ResponseEntity<String> deleteVille(@PathVariable int id, VilleTP6 villeTP6) {
+		if (villeRepository.findById(villeTP6.getId()) != null) {
+			return ResponseEntity.badRequest().body("La ville n'a pas été supprimée car l'id est inexistant.");
+		}
 		villeRepository.deleteById(id);
+		return ResponseEntity.ok(villeService.extractVilleTP6s().toString());
 	}
 
 }

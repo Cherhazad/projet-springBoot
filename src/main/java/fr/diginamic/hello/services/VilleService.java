@@ -47,26 +47,48 @@ public class VilleService {
 		return villeTP6ParNom;
 	}
 
-	public void insertVille(VilleTP6 villeTP6) {
+//	public VilleTP6 insertVille(VilleTP6 villeTP6) {
+//
+//			VilleTP6 villeTP6Existante = extractVilleTP6Nom(villeTP6.getNom());
+//
+//			if (villeTP6Existante == null) {
+//				Departement departement = villeTP6.getDepartement();
+//				Departement departementExistant = departementRepo.findByCodeDep(departement.getCodeDep());
+//				if (departementExistant == null) {
+//					departementRepo.save(departement);
+//				} else {
+//					villeTP6.setDepartement(departementExistant);
+//				}
+//				villeRepo.save(villeTP6);
+//				listeVilles.add(villeTP6);
+//
+//			}
+//			return villeTP6Existante;
+//		}
+	
+	public VilleTP6 insertVille(VilleTP6 villeTP6) {
+	    if (villeTP6.getDepartement() == null) {
+	        throw new RuntimeException("Le département doit être renseigné pour insérer la ville.");
+	    }
 
-		VilleTP6 villeTP6Existante = extractVilleTP6Nom(villeTP6.getNom());
+	    VilleTP6 villeTP6Existante = extractVilleTP6Nom(villeTP6.getNom());
 
-		if (villeTP6Existante == null) {
-//			departementService.insertDepartement(villeTP6.getDepartement());
-			Departement departement = villeTP6.getDepartement();
-			Departement departementExistant = departementRepo.findByCodeDept(departement.getCodeDept());
-			if (departementExistant == null) {
-				departementRepo.save(departement);
-			} else {
-				villeTP6.setDepartement(departementExistant);
-			}
-			villeRepo.save(villeTP6);
-			listeVilles.add(villeTP6);
+	    if (villeTP6Existante == null) {
+	        Departement departement = villeTP6.getDepartement();
+	        Departement departementExistant = departementRepo.findByCodeDep(departement.getCodeDep());
+	        if (departementExistant == null) {
+	            departementRepo.save(departement);
+	        } else {
+	            villeTP6.setDepartement(departementExistant);
+	        }
+	        villeRepo.save(villeTP6);
+	        listeVilles.add(villeTP6);
+	    }
 
-		}
+	    return villeTP6Existante;
 	}
 
-	public List<VilleTP6> modifierVilleTP6(int idVilleTP6, VilleTP6 villeTP6Modifiee) {
+	public VilleTP6 modifierVilleTP6(int idVilleTP6, VilleTP6 villeTP6Modifiee) {
 
 		VilleTP6 villeAModifier = villeRepo.findById(idVilleTP6)
 				.orElseThrow(() -> new RuntimeException("Ville not found"));
@@ -74,22 +96,21 @@ public class VilleService {
 			System.out.println("Ville trouvée : " + villeAModifier);
 			villeAModifier.setNom(villeTP6Modifiee.getNom());
 			villeAModifier.setNbHabitants(villeTP6Modifiee.getNbHabitants());
-//			villeDao.update(villeTP6Modifiee); // n'est même pas nécessaire
+			villeDao.update(villeTP6Modifiee); 
 			System.out.println("Ville modifiée : " + villeTP6Modifiee);
 		} else {
 			System.out.println("VilleService : Ville avec id " + idVilleTP6 + " non trouvée.");
 		}
-		return listeVilles;
+		return villeAModifier;
 	}
 
-	public List<VilleTP6> supprimerVilleTP6(int idVilleTP6) {
+	public VilleTP6 supprimerVilleTP6(int idVilleTP6) {
 		VilleTP6 villeTP6ParId = listeVilles.stream().filter(v -> v.getId() == idVilleTP6).findFirst().orElse(null);
 		if (villeTP6ParId != null) {
 			listeVilles.remove(villeTP6ParId);
 			villeDao.delete(villeTP6ParId);
-			System.out.println(listeVilles);
 		}
-		return listeVilles;
+		return villeTP6ParId;
 	}
 
 }

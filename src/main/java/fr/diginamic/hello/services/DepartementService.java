@@ -19,7 +19,7 @@ public class DepartementService {
 
 	@Autowired
 	private DepartementDao departementDao;
-	
+
 	@Autowired
 	private DepartementRepository depRepo;
 
@@ -35,54 +35,57 @@ public class DepartementService {
 	}
 
 	public Departement extractDeptCodeDep(String codeDep) {
-		Departement depParId = listeDepartements.stream().filter(d -> d.getCodeDept() != null && d.getCodeDept().equals(codeDep)).findFirst().orElse(null);
+		Departement depParId = listeDepartements.stream()
+				.filter(d -> d.getCodeDep() != null && d.getCodeDep().equals(codeDep)).findFirst().orElse(null);
 		return depParId;
 	}
 
 	public Departement extractDepNom(String nom) {
-		Departement depParNom = listeDepartements.stream().filter(d -> d.getNom() != null && d.getNom().equalsIgnoreCase(nom)).findFirst()
-				.orElse(null);
+		Departement depParNom = listeDepartements.stream()
+				.filter(d -> d.getNomDepartement() != null && d.getNomDepartement().equalsIgnoreCase(nom)).findFirst().orElse(null);
 		return depParNom;
 	}
 
-	
-	public void insertDepartement(Departement dept) { //, Set<VilleTP6> listeVilles
+	public void insertDepartement(Departement dept) { // , Set<VilleTP6> listeVilles
 
-		Departement deptExistant = extractDeptCodeDep(dept.getCodeDept());
+		Departement deptExistant = extractDeptCodeDep(dept.getCodeDep());
 		if (deptExistant == null) {
 //			Departement dep = new Departement();
 			depRepo.save(dept);
 			listeDepartements.add(dept);
 		}
 	}
-	
-	public List<Departement> modifierDepartement(String codeDep, Departement deptModifie) {
-		Departement deptAModifier = listeDepartements.stream().filter(d -> d.getCodeDept() == codeDep).findFirst().orElse(null);
+
+	public Departement modifierDepartement(String codeDep, Departement deptModifie) {
+		Departement deptAModifier = depRepo.findByCodeDep(codeDep);
 		if (deptAModifier != null) {
 			System.out.println("Département trouvé : " + deptAModifier);
-			deptAModifier.setNom(codeDep);
+			deptAModifier.setCodeDep(deptModifie.getCodeDep());
+			deptAModifier.setNomDepartement(deptModifie.getNomDepartement());
 			departementDao.update(deptModifie);
 			System.out.println("Département modifié : " + deptModifie);
-			System.out.println(listeDepartements);
 		} else {
-            System.out.println("DepartementService : Département avec codeDep " + codeDep + " non trouvée.");
-        }
-		return listeDepartements;
+			System.out.println("DepartementService : Département avec codeDep " + codeDep + " non trouvée.");
+		}
+		return deptAModifier;
 	}
-	
-	public List<Departement> supprimerDepartement(String codeDep) {
-		Departement deptParId = listeDepartements.stream().filter(d -> d.getCodeDept() == codeDep).findFirst()
+
+	public Departement supprimerDepartement(String codeDep) {
+		Departement deptParId = listeDepartements.stream().filter(d -> d.getCodeDep() == codeDep).findFirst()
 				.orElse(null);
 		if (deptParId != null) {
 			listeDepartements.remove(deptParId);
 			departementDao.delete(deptParId);
 		}
-		return listeDepartements;
+		return deptParId;
 	}
-	
+
 	public List<VilleTP6> villesPlusPeuplees(long nbrVilles, List<VilleTP6> setVilles) {
-		return setVilles.stream().limit(nbrVilles).collect(Collectors.toList());	
+		return setVilles.stream().limit(nbrVilles).collect(Collectors.toList());
 	}
-	
+
+//	public void associerNomDepartement(String codeDept) {
+//		VilleTP6Dto response = restTemplate.getForObject("https://geo.api.gouv.fr/departements/codeDept?fields=nom,code,codeRegion", VilleTP6Dto.class);
+//	}
 
 }

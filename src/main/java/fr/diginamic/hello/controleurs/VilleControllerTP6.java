@@ -27,7 +27,7 @@ public class VilleControllerTP6 {
 
 	@GetMapping
 	public List<VilleTP6Dto> extraireVilles() {
-		return villeService.extractVilleTP6s().stream().map(VilleMapper::toDto).collect(Collectors.toList());
+		return villeService.extractVilleTP6s().stream().map(VilleMapper::villeToDto).collect(Collectors.toList());
 	}
 
 	@GetMapping("/parId/{id}")
@@ -47,13 +47,13 @@ public class VilleControllerTP6 {
 	}
 
 	@PutMapping("/{id}")
-	public List<VilleTP6> updateVille(@PathVariable int id, @RequestBody VilleTP6 villeTP6) {
+	public VilleTP6 updateVille(@PathVariable int id, @RequestBody VilleTP6 villeTP6) {
 		System.out.println("Appel à updateVille avec id: " + id + " et ville: " + villeTP6);
 		return villeService.modifierVilleTP6(id, villeTP6);
 	}
 
 	@DeleteMapping("/{id}")
-	public List<VilleTP6> deleteVille(@PathVariable int id) {
+	public VilleTP6 deleteVille(@PathVariable int id) {
 		return villeService.supprimerVilleTP6(id);
 	}
 

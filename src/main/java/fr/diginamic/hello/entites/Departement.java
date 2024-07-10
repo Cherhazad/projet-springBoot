@@ -9,6 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Departement {
@@ -16,8 +18,13 @@ public class Departement {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-	private String codeDept;
-	private String nom;
+
+	@NotNull
+	@Size(min = 2, max = 3)
+	private String codeDep;
+
+	@Size(min = 2, max = 255)
+	private String nomDepartement;
 
 	@OneToMany(mappedBy = "departement")
 	private Set<VilleTP6> villes = new HashSet<>();
@@ -39,7 +46,12 @@ public class Departement {
 		if (getClass() != obj.getClass())
 			return false;
 		Departement other = (Departement) obj;
-		return Objects.equals(codeDept, other.codeDept);
+		return Objects.equals(codeDep, other.codeDep);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(codeDep);
 	}
 
 	/**
@@ -61,39 +73,39 @@ public class Departement {
 	}
 
 	/**
-	 * Getter pour codeDept
+	 * Getter pour codeDep
 	 * 
-	 * @return the codeDept
+	 * @return the codeDep
 	 */
-	public String getCodeDept() {
-		return codeDept;
+	public String getCodeDep() {
+		return codeDep;
 	}
 
 	/**
-	 * Setter pour codeDept
+	 * Setter pour codeDep
 	 * 
-	 * @param codeDept the codeDept to set
+	 * @param codeDep the codeDep to set
 	 */
-	public void setCodeDept(String codeDept) {
-		this.codeDept = codeDept;
+	public void setCodeDep(String codeDep) {
+		this.codeDep = codeDep;
 	}
 
 	/**
-	 * Getter pour nom
+	 * Getter pour nomDepartement
 	 * 
-	 * @return the nom
+	 * @return the nomDepartement
 	 */
-	public String getNom() {
-		return nom;
+	public String getNomDepartement() {
+		return nomDepartement;
 	}
 
 	/**
-	 * Setter pour nom
+	 * Setter pour nomDepartement
 	 * 
-	 * @param nom the nom to set
+	 * @param nomDepartement the nomDepartement to set
 	 */
-	public void setNom(String nom) {
-		this.nom = nom;
+	public void setNomDepartement(String nomDepartement) {
+		this.nomDepartement = nomDepartement;
 	}
 
 	/**
@@ -116,12 +128,8 @@ public class Departement {
 
 	@Override
 	public String toString() {
-		return "Departement [codeDept=" + codeDept + ", nom=" + nom + "]";
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(codeDept);
+		return "Departement [id=" + id + ", codeDep=" + codeDep + ", nomDepartement=" + nomDepartement + ", villes="
+				+ villes + "]";
 	}
 
 }

@@ -31,13 +31,13 @@ public class DepartementDao {
 	// update
 	@Transactional
 	public void update(Departement dept) {
-		Departement deptFromDb = em.find(Departement.class, dept.getCodeDept());
+		Departement deptFromDb = em.find(Departement.class, dept.getCodeDep());
 		if (deptFromDb != null) {
 			System.out.println("Département trouvé dans la base de données : " + deptFromDb);
 			em.merge(deptFromDb);
 			System.out.println("Département mis à jour dans la base de données : " + deptFromDb);
 		} else {
-			System.out.println("DepartementDao: Departement avec id " + deptFromDb.getCodeDept() + " non trouvé dans la base de données.");
+			System.out.println("DepartementDao: Departement avec id " + deptFromDb.getCodeDep() + " non trouvé dans la base de données.");
 
 		}
 	}
@@ -45,13 +45,13 @@ public class DepartementDao {
 	// delete
 	@Transactional
 	public void delete(Departement dept) {
-		Departement deptFromDb = em.find(Departement.class, dept.getCodeDept());
+		Departement deptFromDb = em.find(Departement.class, dept.getCodeDep());
 		if (deptFromDb != null) {
 			System.out.println("Département trouvé dans la base de données : " + dept);
 			em.remove(deptFromDb);
 			System.out.println("Département mise à jour dans la base de données : " + dept);
 		} else {
-			System.out.println("DepartementDao: Département avec id " + dept.getCodeDept() + " non trouvé dans la base de données.");
+			System.out.println("DepartementDao: Département avec id " + dept.getCodeDep() + " non trouvé dans la base de données.");
 
 		}
 	}

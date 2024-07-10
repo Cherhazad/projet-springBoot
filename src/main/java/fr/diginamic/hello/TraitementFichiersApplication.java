@@ -73,7 +73,7 @@ public class TraitementFichiersApplication implements CommandLineRunner {
 				String nomVille = elementsVille[6];
 				int populationTotale = Integer.parseInt(elementsVille[9].replace(" ", "").trim());
 
-				d.setCodeDept(codeDepartement);
+				d.setCodeDep(codeDepartement);
 				v.setDepartement(d);
 				v.setNom(nomVille);
 				v.setNbHabitants(populationTotale);

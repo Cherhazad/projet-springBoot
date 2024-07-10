@@ -9,7 +9,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "VILLE")
@@ -22,8 +24,10 @@ public class VilleTP6 implements Comparable<VilleTP6> {
 	private int id;
 
 	@NotNull
+	@Size(min = 2, max = 255)
 	private String nom;
 
+	@Min(value = 1)
 	private int nbHabitants;
 
 	@ManyToOne

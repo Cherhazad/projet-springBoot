@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
 import fr.diginamic.hello.dto.VilleTP6Dto;
 import fr.diginamic.hello.entites.VilleTP6;
+import fr.diginamic.hello.repositories.DepartementRepository;
 import fr.diginamic.hello.repositories.VilleRepository;
 import fr.diginamic.hello.services.VilleMapper;
 import fr.diginamic.hello.services.VilleService;
@@ -29,7 +35,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/ville")
@@ -39,7 +45,13 @@ public class VilleControllerRepo {
 	private VilleRepository villeRepository;
 
 	@Autowired
+	private DepartementRepository depRepository;
+
+	@Autowired
 	private VilleService villeService;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@Operation(summary = "Extraire la liste des villes")
 	@ApiResponses(value = {
@@ -47,114 +59,312 @@ public class VilleControllerRepo {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = VilleTP6Dto.class)) }) })
 	@GetMapping
 	public ResponseEntity<String> extraireVilles() {
-		return ResponseEntity
-				.ok(villeRepository.findAll().stream().map(VilleMapper::toDto).collect(Collectors.toList()).toString());
+		return ResponseEntity.ok(villeRepository.findAll().stream().map(VilleMapper::villeToDto)
+				.collect(Collectors.toList()).toString());
 	}
 
 	@GetMapping("/pagination")
-	public Page<VilleTP6Dto> extraireVilles(@RequestParam int page, @RequestParam int size) {
-		return villeRepository.findAll(PageRequest.of(page, size)).map(VilleMapper::toDto);
+	public ResponseEntity<String> extraireVilles(@RequestParam int page, @RequestParam int size)
+			throws JsonProcessingException {
+
+		Page<VilleTP6Dto> villesDto = villeRepository.findAll(PageRequest.of(page, size)).map(VilleMapper::villeToDto);
+		ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+		String json = writer.writeValueAsString(villesDto);
+		return ResponseEntity.ok(json);
 	}
 
 	@GetMapping("/parId/{id}")
-	public VilleTP6Dto extraireVilleParId(@PathVariable int id) {
+	public ResponseEntity<String> extraireVilleParId(@PathVariable int id) {
+
 		Optional<VilleTP6> ville = villeRepository.findById(id);
 		if (ville.isPresent()) {
-			return VilleMapper.toDto(ville.get());
+			VilleTP6Dto villeDto = VilleMapper.villeToDto(ville.get());
+
+			try {
+				ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+				String json = writer.writeValueAsString(villeDto);
+				return ResponseEntity.ok(json);
+			} catch (JsonProcessingException e) {
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur de conversion JSON.");
+			}
 		} else {
-			throw new EntityNotFoundException("Ville avec l'ID " + id + " non trouvée.");
+			return ResponseEntity.badRequest().body("L'id est inexistant.");
 		}
 	}
 
 	@GetMapping("/parNom/{nom}")
-	public VilleTP6Dto extractVilleTP6Nom(@PathVariable String nom) {
+	public ResponseEntity<String> extractVilleTP6Nom(@PathVariable String nom) throws JsonProcessingException {
+
 		VilleTP6 ville = villeRepository.findByNom(nom);
-		VilleTP6Dto villeDto = VilleMapper.toDto(ville);
-		return villeDto;
-	}
-
-	@GetMapping("/commencePar")
-	public List<VilleTP6Dto> findVilleStartsWith(@RequestParam String nom) {
-		List<VilleTP6> ville = villeRepository.findVilleStartsWith(nom);
-		return ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
-	}
-
-	@GetMapping("/populationGreaterThan")
-	public List<VilleTP6Dto> findVillePopGreaterThan(@RequestParam int min) {
-		List<VilleTP6> ville = villeRepository.findVillePopGreaterThan(min);
-		return ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
-	}
-
-	@GetMapping("/populationBetween")
-	public List<VilleTP6Dto> findVillePopBetween(@RequestParam int min, @RequestParam int max) {
-		List<VilleTP6> ville = villeRepository.findVillePopBetween(min, max);
-		return ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
-	}
-
-	@GetMapping("/parDepartementPopGreaterThan")
-	public List<VilleTP6Dto> findVilleDeptPopGreater(@RequestParam int min, @RequestParam String depCode) {
-		List<VilleTP6> ville = villeRepository.findVillesDeptPopGreater(min, depCode);
-		return ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
-	}
-
-	@GetMapping("/parDepartementPopBetween")
-	public List<VilleTP6Dto> findVilleDeptPopBetween(@RequestParam int min, @RequestParam int max,
-			@RequestParam String depCode) {
-		List<VilleTP6> ville = villeRepository.findVilleDeptPopBetween(min, max, depCode);
-		return ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
-	}
-
-	@GetMapping("/parDepartementTop")
-	public List<VilleTP6Dto> findNVillesParDepartementOrdreDecroissant(@RequestParam String depCode,
-			@RequestParam int nbrVilles) {
-		Pageable pageable = PageRequest.of(0, nbrVilles);
-		List<VilleTP6> ville = villeRepository.findNVillesParDepartementOrdreDecroissant(depCode, pageable);
-		return ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
-	}
-
-	@Operation(summary = "Création d'une nouvelle ville")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "La ville a bien été insérée.", content = {
-					@Content(mediaType = "application/json", schema = @Schema(implementation = VilleTP6Dto.class)) }),
-			@ApiResponse(responseCode = "400", description = "La ville n'a pas pu être insérée.", content = @Content) })
-	@PostMapping
-	public ResponseEntity<String> insertVille(@RequestBody VilleTP6 villeTP6) {
-
-		if (villeRepository.findByNom(villeTP6.getNom()) != null) {
-			return ResponseEntity.badRequest().body("La ville n'a pas été insérée.");
+		if (ville != null) {
+			VilleTP6Dto villeDto = VilleMapper.villeToDto(ville);
+			ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+			String json = writer.writeValueAsString(villeDto);
+			return ResponseEntity.ok(json);
+		} else {
+			return ResponseEntity.badRequest().body("Ville avec le nom " + nom + " non trouvée.");
 		}
-		villeService.insertVille(villeTP6);
-		return ResponseEntity.ok(villeService.extractVilleTP6s().toString());
-
 	}
 
+	// TP10
+
+	/**
+	 * Méthode qui permet de générer un fichier CSV après avoir déterminé le nombre
+	 * minimal d'habitants.
+	 * 
+	 * @param min
+	 * @param response
+	 * @throws JsonProcessingException
+	 * @throws IOException
+	 * @throws DocumentException
+	 */
+//	@GetMapping("/fiche/{min}")
+//	public void exportVillesCSV(@PathVariable int min, HttpServletResponse response) throws IOException, DocumentException {
+//		
+//		response.setHeader("Content-Disposition", "attachment; filename=\"fichier.csv\"");
+//		List<VilleTP6> villes = villeRepository.findVillePopGreaterThan(min);
+//
+//		RestTemplate restTemplate = new RestTemplate();
+//		VilleTP6Dto responseApi = restTemplate.getForObject("https://geo.api.gouv.fr/departements/code?fields=nom,code", VilleTP6Dto.class);
+//		
+//		ObjectMapper mapper = new ObjectMapper();
+//		VilleTP6Dto villeDto = mapper.readValue(response.getBody(), Livre.class);
+//		
+//		for (VilleTP6 ville : villes) {
+//			response.getWriter().append(ville.getNom() + ";" + ville.getNbHabitants() + ";" + ville.getDepartement().getCodeDept()  + "\n"); //+ ";" +ville.getDepartement().getNom()
+//		}
+//		response.flushBuffer();
+//	}
+
+	// Fin TP10
+
+	/**
+	 * @param nom
+	 * @param result
+	 * @return
+	 * @throws JsonProcessingException
+	 */
+	@GetMapping("/commencePar")
+	public ResponseEntity<String> findVilleStartsWith(@RequestParam String debutNom) throws JsonProcessingException {
+
+		List<VilleTP6> villes = villeRepository.findVilleStartsWith(debutNom);
+
+		if (villes != null) {
+			List<VilleTP6Dto> villesDto = villes.stream().map(VilleMapper::villeToDto).collect(Collectors.toList());
+			ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+			String json = writer.writeValueAsString(villesDto);
+			return ResponseEntity.ok(json);
+
+		} else {
+			return ResponseEntity.badRequest().body("Ville commençant par " + debutNom + " non trouvée.");
+		}
+	}
+
+	/**
+	 * @param min
+	 * @param result
+	 * @return
+	 * @throws JsonProcessingException
+	 */
+	@GetMapping("/populationGreaterThan")
+	public ResponseEntity<String> findVillePopGreaterThan(@RequestParam int min) throws JsonProcessingException {
+
+		List<VilleTP6> villes = villeRepository.findVillePopGreaterThan(min);
+
+		if (villes != null) {
+
+			List<VilleTP6Dto> villesDto = villes.stream().map(VilleMapper::villeToDto).collect(Collectors.toList());
+			ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+			String json = writer.writeValueAsString(villesDto);
+			return ResponseEntity.ok(json);
+		} else {
+			return ResponseEntity.badRequest().body("Aucune ville n'a été trouvée.");
+		}
+	}
+
+	/**
+	 * @param min
+	 * @param max
+	 * @param result
+	 * @return
+	 * @throws JsonProcessingException
+	 */
+	@GetMapping("/populationBetween")
+	public ResponseEntity<String> findVillePopBetween(@RequestParam int min, @Valid @RequestParam int max)
+			throws JsonProcessingException {
+
+		List<VilleTP6> villes = villeRepository.findVillePopBetween(min, max);
+
+		if (villes != null) {
+			List<VilleTP6Dto> villesDto = villes.stream().map(VilleMapper::villeToDto).collect(Collectors.toList());
+			ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+			String json = writer.writeValueAsString(villesDto);
+			return ResponseEntity.ok(json);
+		} else {
+			return ResponseEntity.badRequest().body("Aucune ville n'a été trouvée.");
+		}
+	}
+
+	/**
+	 * @param min
+	 * @param depCode
+	 * @return
+	 * @throws JsonProcessingException
+	 */
+	@GetMapping("/parDepartementPopGreaterThan")
+	public ResponseEntity<String> findVilleDeptPopGreater(@RequestParam int min, @RequestParam String depCode)
+			throws JsonProcessingException {
+
+		if (depRepository.findByCodeDep(depCode) != null) {
+			List<VilleTP6> ville = villeRepository.findVillesDeptPopGreater(min, depCode);
+			List<VilleTP6Dto> villesDto = ville.stream().map(VilleMapper::villeToDto).collect(Collectors.toList());
+			ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+			String json = writer.writeValueAsString(villesDto);
+			return ResponseEntity.ok(json);
+
+		} else {
+			return ResponseEntity.badRequest().body("Le département n'a pas été trouvé ou est inexistant.");
+		}
+	}
+
+	/**
+	 * @param min
+	 * @param max
+	 * @param depCode
+	 * @return
+	 * @throws Exception
+	 */
+	@GetMapping("/parDepartementPopBetween")
+	public ResponseEntity<String> findVilleDeptPopBetween(@RequestParam int min, @RequestParam int max,
+			@RequestParam String depCode) throws Exception {
+
+		if (depRepository.findByCodeDep(depCode) != null) {
+			List<VilleTP6> ville = villeRepository.findVilleDeptPopBetween(min, max, depCode);
+			List<VilleTP6Dto> villesDto = ville.stream().map(VilleMapper::villeToDto).collect(Collectors.toList());
+			ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+			String json = writer.writeValueAsString(villesDto);
+			return ResponseEntity.ok(json);
+
+		} else {
+			return ResponseEntity.badRequest().body("Le département n'a pas été trouvé ou est inexistant.");
+		}
+	}
+
+	/**
+	 * @param depCode
+	 * @param nbrVilles
+	 * @return
+	 * @throws JsonProcessingException
+	 */
+	@GetMapping("/parDepartementTop")
+	public ResponseEntity<String> findNVillesParDepartementOrdreDecroissant(@RequestParam String depCode,
+			@RequestParam int nbrVilles) throws JsonProcessingException {
+
+		if (depRepository.findByCodeDep(depCode) != null) {
+			Pageable pageable = PageRequest.of(0, nbrVilles);
+			List<VilleTP6> ville = villeRepository.findNVillesParDepartementOrdreDecroissant(depCode, pageable);
+			List<VilleTP6Dto> villesDto = ville.stream().map(VilleMapper::villeToDto).collect(Collectors.toList());
+			ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+			String json = writer.writeValueAsString(villesDto);
+			return ResponseEntity.ok(json);
+
+		} else {
+			return ResponseEntity.badRequest().body("Le département n'a pas été trouvé ou est inexistant.");
+		}
+	}
+
+	/**
+	 * @param villeTP6
+	 * @return
+	 * @throws JsonProcessingException
+	 */
+//	@Operation(summary = "Création d'une nouvelle ville")
+//	@ApiResponses(value = {
+//			@ApiResponse(responseCode = "200", description = "La ville a bien été insérée.", content = {
+//					@Content(mediaType = "application/json", schema = @Schema(implementation = VilleTP6Dto.class)) }),
+//			@ApiResponse(responseCode = "400", description = "La ville n'a pas pu être insérée.", content = @Content) })
+//	@PostMapping
+//	public ResponseEntity<String> insertVille(@RequestBody VilleTP6 villeTP6) throws JsonProcessingException {
+//
+//		VilleTP6 ville = villeRepository.findByNom(villeTP6.getNom());
+//
+//		if (ville != null) {
+//			return ResponseEntity.badRequest().body("La ville n'a pas été insérée car elle existe déjà.");
+//		}
+//		VilleTP6 villeInseree = villeService.insertVille(villeTP6);
+//		VilleTP6Dto villeDto = VilleMapper.villeToDto(villeInseree);
+//		ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+//		String json = writer.writeValueAsString(villeDto);
+//		return ResponseEntity.ok(json);
+//	}
+	
+	@PostMapping
+	public ResponseEntity<String> insertVille(@RequestBody VilleTP6 villeTP6) throws JsonProcessingException {
+	    try {
+	        VilleTP6 villeInseree = villeService.insertVille(villeTP6);
+	        VilleTP6Dto villeDto = VilleMapper.villeToDto(villeInseree);
+	        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+	        String json = writer.writeValueAsString(villeDto);
+	        return ResponseEntity.ok(json);
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	    }
+	}
+	
+	
+
+	/**
+	 * @param id
+	 * @param villeTP6
+	 * @return
+	 * @throws JsonProcessingException
+	 */
 	@Operation(summary = "Modification d'une ville")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "La ville a bien été modifiée.", content = {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = VilleTP6Dto.class)) }),
 			@ApiResponse(responseCode = "400", description = "La ville n'a pas pu être modifiée.", content = @Content) })
 	@PutMapping("/{id}")
-	public ResponseEntity<String> updateVille(@PathVariable int id, @RequestBody VilleTP6 villeTP6) {
-		if (villeRepository.findById(villeTP6.getId()) != null) {
-			return ResponseEntity.badRequest().body("La ville n'a pas été modifiée.");
+	public ResponseEntity<String> updateVille(@PathVariable int id, @RequestBody VilleTP6 villeTP6)
+			throws JsonProcessingException {
+		Optional<VilleTP6> ville = villeRepository.findById(id);
+		if (ville.isPresent()) {
+			VilleTP6 updatedVille = villeService.modifierVilleTP6(id, villeTP6);
+			VilleTP6Dto villeDto = VilleMapper.villeToDto(updatedVille);
+			ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+			String json = writer.writeValueAsString(villeDto);
+			return ResponseEntity.ok(json);
 		}
-		List<VilleTP6> ville = villeService.modifierVilleTP6(id, villeTP6);
-		ville.stream().map(VilleMapper::toDto).collect(Collectors.toList());
-		return ResponseEntity.ok(villeService.extractVilleTP6s().toString());
+		return ResponseEntity.badRequest().body("La ville n'a pas été modifiée.");
 	}
-	
+
+	/**
+	 * @param id
+	 * @param villeTP6
+	 * @return
+	 */
 	@Operation(summary = "Suppression d'une ville")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "La ville a bien été supprimée.", content = {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = VilleTP6Dto.class)) }),
 			@ApiResponse(responseCode = "400", description = "La ville n'a pas pu être supprimée.", content = @Content) })
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteVille(@PathVariable int id, VilleTP6 villeTP6) {
-		if (villeRepository.findById(villeTP6.getId()) != null) {
-			return ResponseEntity.badRequest().body("La ville n'a pas été supprimée car l'id est inexistant.");
+	public ResponseEntity<String> deleteVille(@PathVariable int id) {
+		Optional<VilleTP6> ville = villeRepository.findById(id);
+
+		if (ville.isPresent()) {
+			VilleTP6Dto villeDto = VilleMapper.villeToDto(ville.get());
+			villeRepository.deleteById(id);
+			try {
+				ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+				String json = writer.writeValueAsString(villeDto);
+				return ResponseEntity.ok(json);
+			} catch (JsonProcessingException e) {
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+						.body("Erreur lors de la conversion de la ville en JSON.");
+			}
 		}
-		villeRepository.deleteById(id);
-		return ResponseEntity.ok(villeService.extractVilleTP6s().toString());
+		return ResponseEntity.badRequest().body("La ville n'a pas été supprimée car l'id est inexistant.");
 	}
 
 }

@@ -9,12 +9,17 @@ public class VilleTP6Dto {
 	@NotNull
 	@Size(min = 2, max = 255)
 	private String nom;
-	
+
 	@Min(value = 1)
 	private int nbHabitants;
-	
+
+	@NotNull
 	@Size(min = 2, max = 3)
 	private String codeDep;
+
+	@NotNull
+	@Size(min = 2)
+	private String nomDepartement;
 
 	/**
 	 * Constructeur
@@ -23,9 +28,6 @@ public class VilleTP6Dto {
 	public VilleTP6Dto() {
 		super();
 	}
-	
-	
-	
 
 	/**
 	 * Getter pour nom
@@ -81,9 +83,28 @@ public class VilleTP6Dto {
 		this.codeDep = codeDep;
 	}
 
+	/**
+	 * Getter pour nomDepartement
+	 * 
+	 * @return the nomDepartement
+	 */
+	public String getNomDepartement() {
+		return nomDepartement;
+	}
+
+	/**
+	 * Setter pour nomDepartement
+	 * 
+	 * @param nomDepartement the nomDepartement to set
+	 */
+	public void setNomDepartement(String nomDepartement) {
+		this.nomDepartement = nomDepartement;
+	}
+
 	@Override
 	public String toString() {
-		return "VilleTP6Dto [nom=" + nom + ", nbHabitants=" + nbHabitants + ", codeDep=" + codeDep + "]";
+		return "VilleTP6Dto [nom=" + nom + ", nbHabitants=" + nbHabitants + ", codeDep=" + codeDep + ", nomDepartement="
+				+ nomDepartement + "]";
 	}
 
 }

@@ -46,14 +46,14 @@ public class DepartementService {
 		return depParNom;
 	}
 
-	public void insertDepartement(Departement dept) { // , Set<VilleTP6> listeVilles
+	public Departement insertDepartement(Departement dept) {
 
 		Departement deptExistant = extractDeptCodeDep(dept.getCodeDep());
 		if (deptExistant == null) {
-//			Departement dep = new Departement();
 			depRepo.save(dept);
 			listeDepartements.add(dept);
 		}
+		return deptExistant;
 	}
 
 	public Departement modifierDepartement(String codeDep, Departement deptModifie) {

@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import fr.diginamic.hello.dto.VilleTP6Dto;
 import fr.diginamic.hello.entites.VilleTP6;
+import fr.diginamic.hello.exceptions.AnomalieException;
 import fr.diginamic.hello.repositories.DepartementRepository;
 import fr.diginamic.hello.repositories.VilleRepository;
 import fr.diginamic.hello.services.VilleMapper;
@@ -156,7 +158,8 @@ public class VilleControllerRepo {
 			return ResponseEntity.ok(json);
 
 		} else {
-			return ResponseEntity.badRequest().body("Ville commençant par " + debutNom + " non trouvée.");
+			return ResponseEntity.badRequest()
+					.body("Aucune ville dont le nom commence par " + debutNom + " a été trouvée.");
 		}
 	}
 
@@ -178,7 +181,7 @@ public class VilleControllerRepo {
 			String json = writer.writeValueAsString(villesDto);
 			return ResponseEntity.ok(json);
 		} else {
-			return ResponseEntity.badRequest().body("Aucune ville n'a été trouvée.");
+			return ResponseEntity.badRequest().body("Aucune ville n'a une population supérieure à " + min);
 		}
 	}
 
@@ -201,7 +204,8 @@ public class VilleControllerRepo {
 			String json = writer.writeValueAsString(villesDto);
 			return ResponseEntity.ok(json);
 		} else {
-			return ResponseEntity.badRequest().body("Aucune ville n'a été trouvée.");
+			return ResponseEntity.badRequest()
+					.body("Aucune ville n'a une population comprise entre " + min + " et " + max);
 		}
 	}
 
@@ -223,7 +227,8 @@ public class VilleControllerRepo {
 			return ResponseEntity.ok(json);
 
 		} else {
-			return ResponseEntity.badRequest().body("Le département n'a pas été trouvé ou est inexistant.");
+			return ResponseEntity.badRequest()
+					.body("Aucune ville n'a une population supérieure à " + min + " dans le département " + depCode);
 		}
 	}
 
@@ -246,7 +251,8 @@ public class VilleControllerRepo {
 			return ResponseEntity.ok(json);
 
 		} else {
-			return ResponseEntity.badRequest().body("Le département n'a pas été trouvé ou est inexistant.");
+			return ResponseEntity.badRequest()
+					.body("Aucune ville n'a une population comprise entre " + min + " et " + max);
 		}
 	}
 
@@ -277,6 +283,7 @@ public class VilleControllerRepo {
 	 * @param villeTP6
 	 * @return
 	 * @throws JsonProcessingException
+	 * @throws AnomalieException
 	 */
 //	@Operation(summary = "Création d'une nouvelle ville")
 //	@ApiResponses(value = {
@@ -297,27 +304,27 @@ public class VilleControllerRepo {
 //		String json = writer.writeValueAsString(villeDto);
 //		return ResponseEntity.ok(json);
 //	}
-	
+
 	@PostMapping
-	public ResponseEntity<String> insertVille(@RequestBody VilleTP6 villeTP6) throws JsonProcessingException {
-	    try {
-	        VilleTP6 villeInseree = villeService.insertVille(villeTP6);
-	        VilleTP6Dto villeDto = VilleMapper.villeToDto(villeInseree);
-	        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-	        String json = writer.writeValueAsString(villeDto);
-	        return ResponseEntity.ok(json);
-	    } catch (RuntimeException e) {
-	        return ResponseEntity.badRequest().body(e.getMessage());
-	    }
+	public ResponseEntity<String> insertVille(@Valid @RequestBody VilleTP6 villeTP6, BindingResult controleQualite)
+			throws JsonProcessingException, AnomalieException {
+
+		if (controleQualite.hasErrors()) {
+			throw new AnomalieException(controleQualite.getAllErrors().get(0).getDefaultMessage());
+		}
+		VilleTP6 villeInseree = villeService.insertVille(villeTP6);
+		VilleTP6Dto villeDto = VilleMapper.villeToDto(villeInseree);
+		ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+		String json = writer.writeValueAsString(villeDto);
+		return ResponseEntity.ok(json);
 	}
-	
-	
 
 	/**
 	 * @param id
 	 * @param villeTP6
 	 * @return
 	 * @throws JsonProcessingException
+	 * @throws AnomalieException
 	 */
 	@Operation(summary = "Modification d'une ville")
 	@ApiResponses(value = {
@@ -325,17 +332,18 @@ public class VilleControllerRepo {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = VilleTP6Dto.class)) }),
 			@ApiResponse(responseCode = "400", description = "La ville n'a pas pu être modifiée.", content = @Content) })
 	@PutMapping("/{id}")
-	public ResponseEntity<String> updateVille(@PathVariable int id, @RequestBody VilleTP6 villeTP6)
-			throws JsonProcessingException {
+	public ResponseEntity<String> updateVille(@PathVariable int id, @Valid @RequestBody VilleTP6 villeTP6,
+			BindingResult controleQualite) throws JsonProcessingException, AnomalieException {
+
 		Optional<VilleTP6> ville = villeRepository.findById(id);
-		if (ville.isPresent()) {
-			VilleTP6 updatedVille = villeService.modifierVilleTP6(id, villeTP6);
-			VilleTP6Dto villeDto = VilleMapper.villeToDto(updatedVille);
-			ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-			String json = writer.writeValueAsString(villeDto);
-			return ResponseEntity.ok(json);
+		if (controleQualite.hasErrors()) {
+			throw new AnomalieException(controleQualite.getAllErrors().get(0).getDefaultMessage());
 		}
-		return ResponseEntity.badRequest().body("La ville n'a pas été modifiée.");
+		VilleTP6 updatedVille = villeService.modifierVilleTP6(id, villeTP6);
+		VilleTP6Dto villeDto = VilleMapper.villeToDto(updatedVille);
+		ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+		String json = writer.writeValueAsString(villeDto);
+		return ResponseEntity.ok(json);
 	}
 
 	/**

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,10 +21,13 @@ public class Departement {
 	private int id;
 
 	@NotNull
-	@Size(min = 2, max = 3)
+	@Size(min = 2, max = 3, message = "Le nombre de caractère du code de département doit être compris entre 2 et 3.")
+	@Column(name = "code_dep")
 	private String codeDep;
 
-	@Size(min = 2, max = 255)
+	@NotNull
+	@Size(min = 2, max = 255, message = "Le nom du département doit contenir au moins 2 caractères.")
+	@Column(name = "nom_departement")
 	private String nomDepartement;
 
 	@OneToMany(mappedBy = "departement")

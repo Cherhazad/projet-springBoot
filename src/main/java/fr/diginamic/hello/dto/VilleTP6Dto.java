@@ -1,24 +1,10 @@
 package fr.diginamic.hello.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-
 public class VilleTP6Dto {
 
-	@NotNull
-	@Size(min = 2, max = 255)
 	private String nom;
-
-	@Min(value = 1)
 	private int nbHabitants;
-
-	@NotNull
-	@Size(min = 2, max = 3)
 	private String codeDep;
-
-	@NotNull
-	@Size(min = 2)
 	private String nomDepartement;
 
 	/**

@@ -2,6 +2,7 @@ package fr.diginamic.hello.entites;
 
 import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,10 +25,12 @@ public class VilleTP6 implements Comparable<VilleTP6> {
 	private int id;
 
 	@NotNull
-	@Size(min = 2, max = 255)
+	@Column(unique=true)
+	@Size(min = 2, max = 255, message = "Le nom de la ville doit contenir au moins 2 caractères.")
 	private String nom;
 
-	@Min(value = 1)
+	@Min(value = 10, message = "Le nombre d'habitants doit être supérieur ou égal à 10.")
+	@Column(name = "nb_habitants")
 	private int nbHabitants;
 
 	@ManyToOne
